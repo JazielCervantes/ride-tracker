@@ -1,16 +1,22 @@
 const API_URL = (import.meta.env.PUBLIC_API_URL || 'http://localhost:8000').replace(/\/$/, '');
+const TOKEN_KEY = 'rt_token';
 
 async function request(path, options = {}) {
   const { skipAuthRedirect, ...fetchOptions } = options;
+  const token = localStorage.getItem(TOKEN_KEY);
   const res = await fetch(`${API_URL}${path}`, {
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json', ...fetchOptions.headers },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...fetchOptions.headers,
+    },
     ...fetchOptions,
   });
 
   if (res.status === 401) {
     if (!skipAuthRedirect && typeof window !== 'undefined') {
       localStorage.removeItem('rt_username');
+      localStorage.removeItem(TOKEN_KEY);
       window.location.href = '/login';
     }
     const err = await res.json().catch(() => ({ detail: 'No autenticado' }));
@@ -28,9 +34,17 @@ async function request(path, options = {}) {
 
 export const api = {
   auth: {
-    login: (username, password) =>
-      request('/auth/login', { method: 'POST', body: JSON.stringify({ username, password }), skipAuthRedirect: true }),
-    logout: () => request('/auth/logout', { method: 'POST' }),
+    login: async (username, password) => {
+      const data = await request('/auth/login', { method: 'POST', body: JSON.stringify({ username, password }), skipAuthRedirect: true });
+      if (data?.token) {
+        localStorage.setItem(TOKEN_KEY, data.token);
+      }
+      return data;
+    },
+    logout: async () => {
+      localStorage.removeItem(TOKEN_KEY);
+      return request('/auth/logout', { method: 'POST' });
+    },
     me: () => request('/auth/me'),
   },
   trips: {

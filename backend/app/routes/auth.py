@@ -26,7 +26,7 @@ def login_route(data: LoginRequest, response: Response, db: Session = Depends(ge
         cookie_kwargs.update(secure=False, samesite="lax")
 
     response.set_cookie(**cookie_kwargs)
-    return {"message": "Login exitoso"}
+    return {"message": "Login exitoso", "token": token}
 
 
 @router.post("/logout")
