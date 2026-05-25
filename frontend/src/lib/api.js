@@ -1,18 +1,20 @@
 const API_URL = (import.meta.env.PUBLIC_API_URL || 'http://localhost:8000').replace(/\/$/, '');
 
 async function request(path, options = {}) {
+  const { skipAuthRedirect, ...fetchOptions } = options;
   const res = await fetch(`${API_URL}${path}`, {
     credentials: 'include',
-    headers: { 'Content-Type': 'application/json', ...options.headers },
-    ...options,
+    headers: { 'Content-Type': 'application/json', ...fetchOptions.headers },
+    ...fetchOptions,
   });
 
   if (res.status === 401) {
-    if (typeof window !== 'undefined') {
+    if (!skipAuthRedirect && typeof window !== 'undefined') {
       localStorage.removeItem('rt_username');
       window.location.href = '/login';
     }
-    throw new Error('No autenticado');
+    const err = await res.json().catch(() => ({ detail: 'No autenticado' }));
+    throw new Error(err.detail || 'No autenticado');
   }
 
   if (!res.ok) {
@@ -27,7 +29,7 @@ async function request(path, options = {}) {
 export const api = {
   auth: {
     login: (username, password) =>
-      request('/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) }),
+      request('/auth/login', { method: 'POST', body: JSON.stringify({ username, password }), skipAuthRedirect: true }),
     logout: () => request('/auth/logout', { method: 'POST' }),
     me: () => request('/auth/me'),
   },
