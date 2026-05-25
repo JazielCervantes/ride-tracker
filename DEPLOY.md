@@ -31,7 +31,7 @@ En Railway → servicio del backend → **Variables** → agregar:
 
 | Variable | Valor |
 |----------|-------|
-| `DATABASE_URL` | `mysql+pymysql://user:pass@host:port/dbname` (copiar de MySQL plugin) |
+| `DATABASE_URL` | Copiar la URL del MySQL plugin. Si empieza con `mysql://`, el código la convierte automáticamente a `mysql+pymysql://` |
 | `SECRET_KEY` | Generar con: `python -c "import secrets; print(secrets.token_hex(32))"` |
 | `ALGORITHM` | `HS256` |
 | `ACCESS_TOKEN_EXPIRE_DAYS` | `7` |

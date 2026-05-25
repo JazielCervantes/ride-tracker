@@ -3,8 +3,18 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from app.config import settings
 
+
+def _build_database_url(url: str) -> str:
+    """Convierte mysql:// a mysql+pymysql:// (Railway entrega el URL sin dialecto)."""
+    if url.startswith("mysql://"):
+        return url.replace("mysql://", "mysql+pymysql://", 1)
+    return url
+
+
+_db_url = _build_database_url(settings.DATABASE_URL)
+
 engine = create_engine(
-    settings.DATABASE_URL,
+    _db_url,
     pool_pre_ping=True,
     echo=settings.DEBUG,
 )
