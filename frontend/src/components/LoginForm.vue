@@ -51,7 +51,12 @@ async function handleLogin() {
     localStorage.setItem('rt_username', username.value);
     window.location.href = '/';
   } catch (e) {
-    error.value = e.message || 'Error al iniciar sesión';
+    console.error('[Login error]', e);
+    if (e.message === 'Failed to fetch' || e.name === 'TypeError') {
+      error.value = 'No se pudo conectar con el servidor. Verificá tu conexión o que el backend esté activo.';
+    } else {
+      error.value = e.message || 'Error al iniciar sesión';
+    }
   } finally {
     loading.value = false;
   }
