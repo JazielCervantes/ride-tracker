@@ -1,0 +1,76 @@
+---
+import '../styles/global.css';
+const { title = 'Ride Tracker', currentPage = '' } = Astro.props;
+---
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title} — Ride Tracker</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css" />
+</head>
+<body>
+
+  <header class="rt-header">
+    <nav class="rt-nav container-fluid">
+      <a href="/" class="rt-brand">
+        <span class="rt-brand-icon">🚗</span>
+        <span class="rt-brand-name">Ride Tracker</span>
+      </a>
+
+      <ul class="rt-nav-links">
+        <li>
+          <a href="/" class:list={["rt-nav-link", { active: currentPage === 'dashboard' }]}>
+            Dashboard
+          </a>
+        </li>
+        <li>
+          <a href="/viajes" class:list={["rt-nav-link", { active: currentPage === 'viajes' }]}>
+            Viajes
+          </a>
+        </li>
+        <li>
+          <a href="/semanas" class:list={["rt-nav-link", { active: currentPage === 'semanas' }]}>
+            Semanas
+          </a>
+        </li>
+      </ul>
+
+      <div class="rt-nav-user">
+        <span id="nav-username" class="rt-username"></span>
+        <button id="logout-btn" class="rt-btn-logout outline">Salir</button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="rt-main container">
+    <slot />
+  </main>
+
+  <script>
+    import { api } from '../lib/api.js';
+
+    // Auth check: si no hay username guardado, redirigir al login
+    const username = localStorage.getItem('rt_username');
+    if (!username) {
+      window.location.href = '/login';
+    } else {
+      const el = document.getElementById('nav-username');
+      if (el) el.textContent = username;
+    }
+
+    // Logout
+    document.getElementById('logout-btn')?.addEventListener('click', async () => {
+      try {
+        await api.auth.logout();
+      } catch (_) {
+        // Continuar aunque falle el servidor
+      }
+      localStorage.removeItem('rt_username');
+      window.location.href = '/login';
+    });
+  </script>
+
+</body>
+</html>

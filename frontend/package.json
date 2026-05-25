@@ -1,0 +1,16 @@
+{
+  "name": "ride-tracker-frontend",
+  "type": "module",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/vue": "^4.0.9",
+    "astro": "^4.2.1",
+    "vue": "^3.4.15"
+  }
+}

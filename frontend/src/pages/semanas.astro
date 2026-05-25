@@ -1,0 +1,7 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import WeekHistory from '../components/WeekHistory.vue';
+---
+<MainLayout title="Semanas" currentPage="semanas">
+  <WeekHistory client:load />
+</MainLayout>

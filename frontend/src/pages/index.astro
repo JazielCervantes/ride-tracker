@@ -1,0 +1,7 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import DashboardWidget from '../components/DashboardWidget.vue';
+---
+<MainLayout title="Dashboard" currentPage="dashboard">
+  <DashboardWidget client:load />
+</MainLayout>

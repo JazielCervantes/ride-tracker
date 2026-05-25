@@ -1,0 +1,30 @@
+---
+import LoginForm from '../components/LoginForm.vue';
+import '../styles/global.css';
+---
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Iniciar sesión — Ride Tracker</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css" />
+</head>
+<body class="rt-login-page">
+  <div class="rt-login-container">
+    <div class="rt-login-header">
+      <div class="rt-login-icon">🚗</div>
+      <h1 class="rt-login-title">Ride Tracker</h1>
+      <p class="rt-login-subtitle">Registro de viajes</p>
+    </div>
+    <LoginForm client:load />
+  </div>
+
+  <script>
+    // Redirigir si ya está logueado
+    if (typeof window !== 'undefined' && localStorage.getItem('rt_username')) {
+      window.location.href = '/';
+    }
+  </script>
+</body>
+</html>
