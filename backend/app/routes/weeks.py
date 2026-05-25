@@ -21,6 +21,7 @@ def _build_week_summary(
         payment_date=get_payment_date(ws),
         total_trips=agg["total_trips"],
         total_income=agg["total_income"],
+        total_tips=agg["total_tips"],
         trips=trips,
     )
 

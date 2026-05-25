@@ -36,7 +36,8 @@
       <!-- Resumen de semana -->
       <div v-if="selectedWeek" class="rt-week-summary-bar">
         <span>{{ trips.length }} viaje{{ trips.length !== 1 ? 's' : '' }}</span>
-        <span class="rt-summary-income">Total: <strong>${{ weekTotal.toFixed(2) }}</strong></span>
+        <span class="rt-summary-income">Tarifas: <strong>${{ weekTotal.toFixed(2) }}</strong></span>
+        <span v-if="weekTips > 0" class="rt-summary-tips">Propinas: <strong>${{ weekTips.toFixed(2) }}</strong></span>
         <span class="rt-summary-payment">Cobro: {{ paymentDateLabel }}</span>
       </div>
 
@@ -56,14 +57,18 @@
             <td>{{ formatDate(trip.date) }}</td>
             <td>
               <span class="rt-trip-type-badge" :class="trip.trip_type">
-                {{ trip.trip_type === 'individual' ? '👤 Individual' : '👥 Par' }}
+                {{ trip.trip_type === 'individual' ? '👤 Individual' : trip.trip_type === 'triple' ? '👥👤 Triple' : '👥 Par' }}
               </span>
             </td>
             <td class="rt-clients-cell">
               <div>{{ trip.client1_name }}</div>
               <div v-if="trip.client2_name" class="rt-client2">{{ trip.client2_name }}</div>
+              <div v-if="trip.client3_name" class="rt-client2">{{ trip.client3_name }}</div>
             </td>
-            <td class="text-right rt-amount-cell">${{ Number(trip.total_amount).toFixed(2) }}</td>
+            <td class="text-right rt-amount-cell">
+              ${{ Number(trip.total_amount).toFixed(2) }}
+              <div v-if="Number(trip.tip_amount) > 0" class="rt-tip-sub">+${{ Number(trip.tip_amount).toFixed(2) }} prop.</div>
+            </td>
             <td class="rt-notes-cell">{{ trip.notes || '—' }}</td>
             <td class="text-right">
               <div class="rt-actions">
@@ -131,6 +136,10 @@ function weekEndFor(ws) { return getWeekEnd(ws); }
 
 const weekTotal = computed(() =>
   trips.value.reduce((sum, t) => sum + Number(t.total_amount), 0)
+);
+
+const weekTips = computed(() =>
+  trips.value.reduce((sum, t) => sum + Number(t.tip_amount || 0), 0)
 );
 
 const paymentDateLabel = computed(() => {

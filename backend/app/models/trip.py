@@ -8,6 +8,7 @@ from app.database import Base
 class TripType(str, enum.Enum):
     individual = "individual"
     pair = "pair"
+    triple = "triple"
 
 
 class Trip(Base):
@@ -19,8 +20,10 @@ class Trip(Base):
     trip_type = Column(Enum(TripType), nullable=False)
     client1_name = Column(String(100), nullable=False)
     client2_name = Column(String(100), nullable=True)
+    client3_name = Column(String(100), nullable=True)
     amount_per_client = Column(Numeric(10, 2), nullable=False)
     total_amount = Column(Numeric(10, 2), nullable=False)
+    tip_amount = Column(Numeric(10, 2), nullable=False, server_default="0")
     week_start = Column(Date, nullable=False, index=True)
     notes = Column(Text, nullable=True)
     created_at = Column(DateTime, server_default=func.now())

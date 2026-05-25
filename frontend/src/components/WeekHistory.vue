@@ -54,6 +54,7 @@
                       <div class="rt-detail-totals">
                         <span>{{ weekDetail?.total_trips ?? '...' }} viajes</span>
                         <span class="rt-income-highlight">${{ Number(weekDetail?.total_income ?? 0).toFixed(2) }}</span>
+                        <span v-if="Number(weekDetail?.total_tips) > 0" class="rt-income-tips-sm">+${{ Number(weekDetail?.total_tips ?? 0).toFixed(2) }} prop.</span>
                         <button class="rt-btn-text" @click="expandedWeek = null">Cerrar ↑</button>
                       </div>
                     </div>
@@ -70,7 +71,8 @@
                           <th>Fecha</th>
                           <th>Tipo</th>
                           <th>Clientes</th>
-                          <th class="text-right">Monto</th>
+                          <th class="text-right">Tarifa</th>
+                          <th class="text-right">Propina</th>
                           <th>Notas</th>
                         </tr>
                       </thead>
@@ -79,13 +81,16 @@
                           <td>{{ formatDate(trip.date) }}</td>
                           <td>
                             <span class="rt-trip-type-badge" :class="trip.trip_type">
-                              {{ trip.trip_type === 'individual' ? '👤 Individual' : '👥 Par' }}
+                              {{ trip.trip_type === 'individual' ? '👤 Individual' : trip.trip_type === 'triple' ? '👥👤 Triple' : '👥 Par' }}
                             </span>
                           </td>
                           <td>
-                            {{ trip.client1_name }}{{ trip.client2_name ? ` & ${trip.client2_name}` : '' }}
+                            {{ trip.client1_name }}{{ trip.client2_name ? ` & ${trip.client2_name}` : '' }}{{ trip.client3_name ? ` & ${trip.client3_name}` : '' }}
                           </td>
                           <td class="text-right rt-amount-cell">${{ Number(trip.total_amount).toFixed(2) }}</td>
+                          <td class="text-right rt-amount-cell">
+                            {{ Number(trip.tip_amount) > 0 ? '$' + Number(trip.tip_amount).toFixed(2) : '—' }}
+                          </td>
                           <td>{{ trip.notes || '—' }}</td>
                         </tr>
                       </tbody>

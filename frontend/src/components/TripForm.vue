@@ -26,13 +26,17 @@
               <input v-model="form.trip_type" type="radio" value="pair" />
               <span>👥 En par <small>$25 c/u</small></span>
             </label>
+            <label class="rt-radio-option" :class="{ selected: form.trip_type === 'triple' }">
+              <input v-model="form.trip_type" type="radio" value="triple" />
+              <span>👥👤 Triple <small>$25 c/u</small></span>
+            </label>
           </div>
         </div>
 
         <!-- Cliente 1 -->
         <div class="rt-field">
           <label for="tf-client1">
-            {{ form.trip_type === 'pair' ? 'Cliente 1' : 'Cliente' }}
+            {{ form.trip_type === 'individual' ? 'Cliente' : 'Cliente 1' }}
           </label>
           <input
             id="tf-client1"
@@ -43,8 +47,8 @@
           />
         </div>
 
-        <!-- Cliente 2 (solo para par) -->
-        <div v-if="form.trip_type === 'pair'" class="rt-field">
+        <!-- Cliente 2 (para par y triple) -->
+        <div v-if="form.trip_type === 'pair' || form.trip_type === 'triple'" class="rt-field">
           <label for="tf-client2">Cliente 2</label>
           <input
             id="tf-client2"
@@ -55,16 +59,46 @@
           />
         </div>
 
+        <!-- Cliente 3 (solo para triple) -->
+        <div v-if="form.trip_type === 'triple'" class="rt-field">
+          <label for="tf-client3">Cliente 3</label>
+          <input
+            id="tf-client3"
+            v-model="form.client3_name"
+            type="text"
+            placeholder="Nombre del tercer cliente"
+            required
+          />
+        </div>
+
         <!-- Notas -->
         <div class="rt-field">
           <label for="tf-notes">Notas <small>(opcional)</small></label>
           <textarea id="tf-notes" v-model="form.notes" rows="2" placeholder="Observaciones..."></textarea>
         </div>
 
+        <!-- Propina -->
+        <div class="rt-field">
+          <label for="tf-tip">Propina <small>(opcional)</small></label>
+          <input
+            id="tf-tip"
+            v-model.number="form.tip_amount"
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="0.00"
+          />
+        </div>
+
         <!-- Resumen de monto -->
         <div class="rt-amount-preview">
-          <span>Total:</span>
+          <span>Tarifa:</span>
           <strong>${{ amountPreview }}</strong>
+          <template v-if="form.tip_amount > 0">
+            <span> + ${{ Number(form.tip_amount).toFixed(2) }} propina
+              = <strong>${{ (parseFloat(amountPreview) + (parseFloat(form.tip_amount) || 0)).toFixed(2) }}</strong>
+            </span>
+          </template>
         </div>
 
         <p v-if="error" class="rt-error">{{ error }}</p>
@@ -100,21 +134,28 @@ const form = ref({
   trip_type: props.trip?.trip_type ?? 'individual',
   client1_name: props.trip?.client1_name ?? '',
   client2_name: props.trip?.client2_name ?? '',
+  client3_name: props.trip?.client3_name ?? '',
+  tip_amount: props.trip?.tip_amount ? Number(props.trip.tip_amount) : 0,
   notes: props.trip?.notes ?? '',
 });
 
 const loading = ref(false);
 const error = ref('');
 
-// Limpiar client2_name al cambiar a individual
+// Limpiar nombres de clientes extra al cambiar tipo
 watch(() => form.value.trip_type, (newType) => {
   if (newType === 'individual') {
     form.value.client2_name = '';
+    form.value.client3_name = '';
+  } else if (newType === 'pair') {
+    form.value.client3_name = '';
   }
 });
 
 const amountPreview = computed(() => {
-  return form.value.trip_type === 'individual' ? '30.00' : '50.00';
+  if (form.value.trip_type === 'individual') return '30.00';
+  if (form.value.trip_type === 'triple') return '75.00';
+  return '50.00';
 });
 
 async function handleSubmit() {
@@ -125,11 +166,17 @@ async function handleSubmit() {
     date: form.value.date,
     trip_type: form.value.trip_type,
     client1_name: form.value.client1_name.trim(),
+    tip_amount: parseFloat(form.value.tip_amount) || 0,
     notes: form.value.notes.trim() || null,
   };
 
   if (form.value.trip_type === 'pair') {
     data.client2_name = form.value.client2_name.trim();
+  }
+
+  if (form.value.trip_type === 'triple') {
+    data.client2_name = form.value.client2_name.trim();
+    data.client3_name = form.value.client3_name.trim();
   }
 
   try {

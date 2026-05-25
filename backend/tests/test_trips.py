@@ -110,3 +110,51 @@ def test_cannot_access_other_user_trip(client):
     # Use a non-existent trip ID
     response = client.delete(f"/trips/{trip_id + 999}")
     assert response.status_code == 404
+
+
+def test_update_trip_full_frontend_payload(client):
+    """Simulates the exact payload the frontend sends (all fields including notes=null)."""
+    _login(client)
+    create = client.post("/trips", json={
+        "date": "2026-05-20",
+        "trip_type": "individual",
+        "client1_name": "Juan",
+        "notes": "Some notes",
+    })
+    assert create.status_code == 201
+    trip_id = create.json()["id"]
+
+    # Exact payload the frontend sends for an individual trip edit
+    payload = {
+        "date": "2026-05-20",
+        "trip_type": "individual",
+        "client1_name": "Pedro",
+        "notes": None,
+    }
+    response = client.put(f"/trips/{trip_id}", json=payload)
+    assert response.status_code == 200, f"422 detail: {response.json()}"
+    assert response.json()["client1_name"] == "Pedro"
+
+
+def test_update_pair_trip_full_frontend_payload(client):
+    """Simulates the exact payload the frontend sends for a pair trip edit."""
+    _login(client)
+    create = client.post("/trips", json={
+        "date": "2026-05-21",
+        "trip_type": "pair",
+        "client1_name": "Juan",
+        "client2_name": "Maria",
+    })
+    assert create.status_code == 201
+    trip_id = create.json()["id"]
+
+    payload = {
+        "date": "2026-05-21",
+        "trip_type": "pair",
+        "client1_name": "Juan",
+        "client2_name": "Ana",
+        "notes": None,
+    }
+    response = client.put(f"/trips/{trip_id}", json=payload)
+    assert response.status_code == 200, f"422 detail: {response.json()}"
+    assert response.json()["client2_name"] == "Ana"

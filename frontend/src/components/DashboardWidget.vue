@@ -16,6 +16,9 @@
       <div class="rt-income-card">
         <div class="rt-income-label">A cobrar el {{ paymentDateFormatted }}</div>
         <div class="rt-income-amount">${{ totalIncome.toFixed(2) }}</div>
+        <div v-if="Number(weekData?.total_tips) > 0" class="rt-income-tips">
+          + ${{ Number(weekData?.total_tips ?? 0).toFixed(2) }} en propinas
+        </div>
         <div class="rt-income-meta">{{ totalTrips }} viaje{{ totalTrips !== 1 ? 's' : '' }} esta semana</div>
       </div>
 
@@ -30,6 +33,11 @@
           <div class="rt-stat-value">{{ pairTrips }}</div>
           <div class="rt-stat-label">En par</div>
           <div class="rt-stat-sub">${{ (pairTrips * 50).toFixed(0) }}</div>
+        </div>
+        <div class="rt-stat-card">
+          <div class="rt-stat-value">{{ tripleTrips }}</div>
+          <div class="rt-stat-label">Triple</div>
+          <div class="rt-stat-sub">${{ (tripleTrips * 75).toFixed(0) }}</div>
         </div>
         <div class="rt-stat-card">
           <div class="rt-stat-value">{{ todayTrips.length }}</div>
@@ -54,8 +62,8 @@
           <li v-for="trip in todayTrips" :key="trip.id" class="rt-trip-item">
             <div class="rt-trip-info">
               <span class="rt-trip-type-badge" :class="trip.trip_type">
-                {{ trip.trip_type === 'individual' ? '👤' : '👥' }}
-                {{ trip.trip_type === 'individual' ? 'Individual' : 'Par' }}
+                {{ trip.trip_type === 'individual' ? '👤' : trip.trip_type === 'triple' ? '👥👤' : '👥' }}
+                {{ trip.trip_type === 'individual' ? 'Individual' : trip.trip_type === 'triple' ? 'Triple' : 'Par' }}
               </span>
               <span class="rt-trip-clients">
                 {{ trip.client1_name }}{{ trip.client2_name ? ` & ${trip.client2_name}` : '' }}
@@ -115,6 +123,11 @@ const individualTrips = computed(() => {
 const pairTrips = computed(() => {
   if (!weekData.value?.trips) return 0;
   return weekData.value.trips.filter(t => t.trip_type === 'pair').length;
+});
+
+const tripleTrips = computed(() => {
+  if (!weekData.value?.trips) return 0;
+  return weekData.value.trips.filter(t => t.trip_type === 'triple').length;
 });
 
 onMounted(async () => {

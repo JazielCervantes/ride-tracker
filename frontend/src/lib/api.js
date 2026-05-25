@@ -25,7 +25,11 @@ async function request(path, options = {}) {
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: 'Error del servidor' }));
-    throw new Error(err.detail || 'Error del servidor');
+    const detail = err.detail;
+    if (Array.isArray(detail)) {
+      throw new Error(detail.map(e => e.msg || JSON.stringify(e)).join('; '));
+    }
+    throw new Error(detail || 'Error del servidor');
   }
 
   if (res.status === 204) return null;

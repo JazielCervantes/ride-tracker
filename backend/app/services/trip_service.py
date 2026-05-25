@@ -8,12 +8,15 @@ from app.services.week_service import get_week_start
 
 PRICE_INDIVIDUAL = Decimal("30.00")
 PRICE_PAIR = Decimal("25.00")
+PRICE_TRIPLE = Decimal("25.00")
 
 
 def _calculate_amounts(trip_type: str) -> tuple[Decimal, Decimal]:
     """Devuelve (amount_per_client, total_amount)."""
     if trip_type == TripType.individual or trip_type == "individual":
         return PRICE_INDIVIDUAL, PRICE_INDIVIDUAL
+    if trip_type == TripType.triple or trip_type == "triple":
+        return PRICE_TRIPLE, PRICE_TRIPLE * 3
     return PRICE_PAIR, PRICE_PAIR * 2
 
 
@@ -26,8 +29,10 @@ def create_trip(db: Session, user_id: int, data: TripCreate) -> Trip:
         trip_type=data.trip_type,
         client1_name=data.client1_name,
         client2_name=data.client2_name,
+        client3_name=data.client3_name,
         amount_per_client=amount_per_client,
         total_amount=total_amount,
+        tip_amount=data.tip_amount or Decimal("0.00"),
         week_start=week_start,
         notes=data.notes,
     )
@@ -48,15 +53,23 @@ def update_trip(db: Session, trip_id: int, user_id: int, data: TripUpdate) -> Tr
         amount_per_client, total_amount = _calculate_amounts(data.trip_type)
         trip.amount_per_client = amount_per_client
         trip.total_amount = total_amount
-        # Limpiar client2_name si cambia a individual
         if data.trip_type == "individual":
             trip.client2_name = None
+            trip.client3_name = None
+        elif data.trip_type == "pair":
+            trip.client3_name = None
 
     if data.client1_name is not None:
         trip.client1_name = data.client1_name
 
     if data.client2_name is not None:
         trip.client2_name = data.client2_name
+
+    if data.client3_name is not None:
+        trip.client3_name = data.client3_name
+
+    if data.tip_amount is not None:
+        trip.tip_amount = data.tip_amount
 
     if data.notes is not None:
         trip.notes = data.notes

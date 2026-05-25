@@ -71,6 +71,7 @@ def get_week_aggregate(db: Session, user_id: int, week_start: date) -> dict:
         db.query(
             func.count(Trip.id).label("total_trips"),
             func.sum(Trip.total_amount).label("total_income"),
+            func.sum(Trip.tip_amount).label("total_tips"),
         )
         .filter(Trip.user_id == user_id, Trip.week_start == week_start)
         .first()
@@ -78,4 +79,5 @@ def get_week_aggregate(db: Session, user_id: int, week_start: date) -> dict:
     return {
         "total_trips": result.total_trips or 0,
         "total_income": Decimal(str(result.total_income or 0)),
+        "total_tips": Decimal(str(result.total_tips or 0)),
     }
