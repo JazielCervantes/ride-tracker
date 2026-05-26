@@ -38,10 +38,11 @@
         <span>{{ trips.length }} viaje{{ trips.length !== 1 ? 's' : '' }}</span>
         <span class="rt-summary-income">Tarifas: <strong>${{ weekTotal.toFixed(2) }}</strong></span>
         <span v-if="weekTips > 0" class="rt-summary-tips">Propinas: <strong>${{ weekTips.toFixed(2) }}</strong></span>
+        <span v-if="weekTips > 0" class="rt-summary-grand-total">Total: <strong>${{ weekGrandTotal.toFixed(2) }}</strong></span>
         <span class="rt-summary-payment">Cobro: {{ paymentDateLabel }}</span>
       </div>
 
-      <table class="rt-table">
+      <table class="rt-table rt-trips-table">
         <thead>
           <tr>
             <th>Fecha</th>
@@ -141,6 +142,8 @@ const weekTotal = computed(() =>
 const weekTips = computed(() =>
   trips.value.reduce((sum, t) => sum + Number(t.tip_amount || 0), 0)
 );
+
+const weekGrandTotal = computed(() => weekTotal.value + weekTips.value);
 
 const paymentDateLabel = computed(() => {
   if (!selectedWeek.value) return '';

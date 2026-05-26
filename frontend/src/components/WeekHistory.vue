@@ -14,13 +14,15 @@
     <div v-else>
       <!-- Tabla de semanas -->
       <div class="rt-table-wrapper">
-        <table class="rt-table">
+        <table class="rt-table rt-week-history-table">
           <thead>
             <tr>
               <th>Semana</th>
-              <th class="text-right">Viajes</th>
-              <th class="text-right">Ingresos</th>
-              <th>Fecha de cobro</th>
+              <th class="text-right rt-col-viajes">Viajes</th>
+              <th class="text-right">Tarifas</th>
+              <th class="text-right">Propinas</th>
+              <th class="text-right">Total</th>
+              <th class="rt-col-cobro">Fecha de cobro</th>
               <th></th>
             </tr>
           </thead>
@@ -33,9 +35,15 @@
             >
               <template v-if="expandedWeek !== week.week_start">
                 <td>{{ formatWeekRange(week.week_start, week.week_end) }}</td>
-                <td class="text-right">{{ week.total_trips }}</td>
+                <td class="text-right rt-col-viajes">{{ week.total_trips }}</td>
                 <td class="text-right rt-amount-cell">${{ Number(week.total_income).toFixed(2) }}</td>
-                <td>{{ formatDate(week.payment_date) }}</td>
+                <td class="text-right rt-amount-cell rt-tips-cell">
+                  {{ Number(week.total_tips ?? 0) > 0 ? '$' + Number(week.total_tips).toFixed(2) : '—' }}
+                </td>
+                <td class="text-right rt-amount-cell rt-grand-total-cell">
+                  ${{ (Number(week.total_income) + Number(week.total_tips ?? 0)).toFixed(2) }}
+                </td>
+                <td class="rt-col-cobro">{{ formatDate(week.payment_date) }}</td>
                 <td class="text-right">
                   <button class="rt-btn-text" @click="toggleWeek(week.week_start)">
                     Ver detalle ↓
@@ -44,7 +52,7 @@
               </template>
               <template v-else>
                 <!-- Fila expandida — ocupa toda la tabla -->
-                <td colspan="5" class="rt-week-detail-cell">
+                <td colspan="7" class="rt-week-detail-cell">
                   <div class="rt-week-detail">
                     <div class="rt-week-detail-header">
                       <div>
@@ -53,8 +61,9 @@
                       </div>
                       <div class="rt-detail-totals">
                         <span>{{ weekDetail?.total_trips ?? '...' }} viajes</span>
-                        <span class="rt-income-highlight">${{ Number(weekDetail?.total_income ?? 0).toFixed(2) }}</span>
+                        <span class="rt-income-highlight">${{ Number(weekDetail?.total_income ?? 0).toFixed(2) }} tarifas</span>
                         <span v-if="Number(weekDetail?.total_tips) > 0" class="rt-income-tips-sm">+${{ Number(weekDetail?.total_tips ?? 0).toFixed(2) }} prop.</span>
+                        <span v-if="Number(weekDetail?.total_tips) > 0" class="rt-income-grand-total">= ${{ (Number(weekDetail?.total_income ?? 0) + Number(weekDetail?.total_tips ?? 0)).toFixed(2) }} total</span>
                         <button class="rt-btn-text" @click="expandedWeek = null">Cerrar ↑</button>
                       </div>
                     </div>

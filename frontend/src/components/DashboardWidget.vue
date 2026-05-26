@@ -15,9 +15,9 @@
       <!-- Tarjeta principal: Total a cobrar -->
       <div class="rt-income-card">
         <div class="rt-income-label">A cobrar el {{ paymentDateFormatted }}</div>
-        <div class="rt-income-amount">${{ totalIncome.toFixed(2) }}</div>
-        <div v-if="Number(weekData?.total_tips) > 0" class="rt-income-tips">
-          + ${{ Number(weekData?.total_tips ?? 0).toFixed(2) }} en propinas
+        <div class="rt-income-amount">${{ grandTotal.toFixed(2) }}</div>
+        <div v-if="totalTips > 0" class="rt-income-tips">
+          ${{ totalIncome.toFixed(2) }} tarifas + ${{ totalTips.toFixed(2) }} propinas
         </div>
         <div class="rt-income-meta">{{ totalTrips }} viaje{{ totalTrips !== 1 ? 's' : '' }} esta semana</div>
       </div>
@@ -108,6 +108,8 @@ const paymentDateFormatted = computed(() => {
 });
 
 const totalIncome = computed(() => Number(weekData.value?.total_income ?? 0));
+const totalTips = computed(() => Number(weekData.value?.total_tips ?? 0));
+const grandTotal = computed(() => totalIncome.value + totalTips.value);
 const totalTrips = computed(() => weekData.value?.total_trips ?? 0);
 
 const todayTrips = computed(() => {

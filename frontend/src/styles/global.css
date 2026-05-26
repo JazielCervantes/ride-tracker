@@ -485,6 +485,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 }
 .rt-summary-income { color: var(--rt-income); font-weight: 700; }
 .rt-summary-payment { }
+.rt-income-tips { font-size: 0.9rem; opacity: 0.8; margin-bottom: 0.25rem; }
 
 /* ---- TABLE ---- */
 .rt-table-wrapper {
@@ -558,8 +559,15 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .rt-detail-totals { display: flex; align-items: center; gap: 1rem; font-size: 0.875rem; }
 .rt-income-highlight { color: var(--rt-income); font-weight: 700; font-size: 1.1rem; }
+.rt-income-tips-sm { color: var(--rt-text-muted); font-size: 0.8rem; }
+.rt-income-grand-total { color: var(--rt-text); font-weight: 800; font-size: 1.1rem; border-left: 2px solid var(--rt-border); padding-left: 1rem; }
+.rt-summary-grand-total { color: var(--rt-text); font-weight: 700; border-left: 2px solid var(--rt-border); padding-left: 0.75rem; }
+.rt-summary-tips { color: var(--rt-text-muted); font-size: 0.875rem; }
+.rt-grand-total-cell { font-weight: 700; color: var(--rt-income); }
 
 .rt-detail-table { border-radius: var(--rt-radius); border: 1px solid var(--rt-border); overflow: hidden; }
+.rt-tip-sub { font-size: 0.75rem; color: var(--rt-text-muted); font-weight: 400; margin-top: 0.1rem; }
+.rt-tips-cell { color: var(--rt-text-muted); }
 
 /* ---- MODAL ---- */
 .rt-modal-overlay {
@@ -660,9 +668,29 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
   .rt-modal { max-height: calc(100svh - 1rem); max-height: calc(100vh - 1rem); border-radius: var(--rt-radius); }
   .rt-modal-body { padding: 1rem; }
 
-  .rt-table th:nth-child(5),
-  .rt-table td:nth-child(5) { display: none; }
+  /* Trips table (TripsManager): ocultar columna Notas */
+  .rt-trips-table th:nth-child(5),
+  .rt-trips-table td:nth-child(5) { display: none; }
+
+  /* Week history table: ocultar Viajes (col 2) y Fecha de cobro (col 6) */
+  .rt-week-history-table th.rt-col-viajes,
+  .rt-week-history-table td.rt-col-viajes,
+  .rt-week-history-table th.rt-col-cobro,
+  .rt-week-history-table td.rt-col-cobro { display: none; }
+  .rt-week-history-table th,
+  .rt-week-history-table td { padding: 0.5rem 0.5rem; font-size: 0.8rem; }
+
+  /* Detail table (dentro del detalle expandido): ocultar Tipo (col 2) y Notas (col 6) */
+  .rt-detail-table th:nth-child(2),
+  .rt-detail-table td:nth-child(2),
+  .rt-detail-table th:nth-child(6),
+  .rt-detail-table td:nth-child(6) { display: none; }
+  .rt-detail-table th,
+  .rt-detail-table td { padding: 0.5rem 0.5rem; font-size: 0.8rem; }
+
+  /* Week summary bar: wrap en móvil */
+  .rt-week-summary-bar { flex-wrap: wrap; gap: 0.5rem 1rem; }
 
   .rt-week-detail-header { flex-direction: column; }
-  .rt-detail-totals { flex-wrap: wrap; }
+  .rt-detail-totals { flex-wrap: wrap; gap: 0.5rem; }
 }
