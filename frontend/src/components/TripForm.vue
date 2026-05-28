@@ -92,13 +92,11 @@
 
         <!-- Resumen de monto -->
         <div class="rt-amount-preview">
-          <span>Tarifa:</span>
-          <strong>${{ amountPreview }}</strong>
-          <template v-if="form.tip_amount > 0">
-            <span> + ${{ Number(form.tip_amount).toFixed(2) }} propina
-              = <strong>${{ (parseFloat(amountPreview) + (parseFloat(form.tip_amount) || 0)).toFixed(2) }}</strong>
-            </span>
-          </template>
+          <span>Tarifa: <strong>${{ amountPreview }}</strong></span>
+          <span v-if="form.tip_amount > 0">
+            + ${{ Number(form.tip_amount).toFixed(2) }} propina
+            = <strong>${{ (parseFloat(amountPreview) + (parseFloat(form.tip_amount) || 0)).toFixed(2) }}</strong>
+          </span>
         </div>
 
         <p v-if="error" class="rt-error">{{ error }}</p>
