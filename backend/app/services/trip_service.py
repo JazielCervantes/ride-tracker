@@ -72,7 +72,7 @@ def update_trip(db: Session, trip_id: int, user_id: int, data: TripUpdate) -> Tr
         trip.tip_amount = data.tip_amount
 
     if data.notes is not None:
-        trip.notes = data.notes
+        trip.notes = data.notes or None
 
     return trip_repository.update(db, trip)
 

@@ -167,7 +167,7 @@ async function handleSubmit() {
     trip_type: form.value.trip_type,
     client1_name: form.value.client1_name.trim(),
     tip_amount: parseFloat(form.value.tip_amount) || 0,
-    notes: form.value.notes.trim() || null,
+    notes: form.value.notes.trim(),
   };
 
   if (form.value.trip_type === 'pair') {
