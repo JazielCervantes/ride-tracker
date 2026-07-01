@@ -135,8 +135,10 @@ textarea:focus-visible {
 
 .rt-brand-icon {
   font-size: 1.1rem;
-  display: inline-grid;
-  place-items: center;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 2rem;
   height: 2rem;
   border-radius: var(--rt-radius);
