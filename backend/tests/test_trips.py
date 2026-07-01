@@ -47,6 +47,34 @@ def test_create_pair_trip_missing_client2(client):
     assert response.status_code == 422
 
 
+def test_create_triple_trip(client):
+    _login(client)
+    response = client.post("/trips", json={
+        "date": "2026-05-20",
+        "trip_type": "triple",
+        "client1_name": "Juan",
+        "client2_name": "María",
+        "client3_name": "Pedro",
+    })
+    assert response.status_code == 201
+    data = response.json()
+    assert data["trip_type"] == "triple"
+    assert float(data["amount_per_client"]) == 25.0
+    assert float(data["total_amount"]) == 75.0
+    assert data["client3_name"] == "Pedro"
+
+
+def test_create_triple_trip_missing_client3(client):
+    _login(client)
+    response = client.post("/trips", json={
+        "date": "2026-05-20",
+        "trip_type": "triple",
+        "client1_name": "Juan",
+        "client2_name": "María",
+    })
+    assert response.status_code == 422
+
+
 def test_list_trips_all(client):
     _login(client)
     client.post("/trips", json={"date": "2026-05-20", "trip_type": "individual", "client1_name": "A"})

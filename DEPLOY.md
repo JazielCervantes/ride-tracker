@@ -160,6 +160,26 @@ print('Password actualizado')
 "
 ```
 
+### Migrar la tabla `trips` en una BD existente (viajes triple + propinas)
+
+El proyecto no usa una herramienta de migraciones: `init_db()` solo ejecuta
+`create_all`, que **no** modifica tablas ya creadas. Si el servicio se desplegó
+antes de agregar los viajes triple, hay que actualizar la tabla `trips` a mano
+**una sola vez** en la MySQL de Railway (Railway Shell → `mysql` o cualquier cliente):
+
+```sql
+-- Agregar columnas nuevas (si aún no existen)
+ALTER TABLE trips ADD COLUMN client3_name VARCHAR(100) NULL;
+ALTER TABLE trips ADD COLUMN tip_amount DECIMAL(10,2) NOT NULL DEFAULT 0;
+
+-- Cambiar trip_type de ENUM nativo a VARCHAR para aceptar 'triple'
+-- (la validación de valores vive en los schemas Pydantic del backend)
+ALTER TABLE trips MODIFY COLUMN trip_type VARCHAR(20) NOT NULL;
+```
+
+> En SQLite local basta con borrar `backend/ride_tracker.db` y volver a correr
+> `seed.py`, o aplicar los mismos `ALTER TABLE ... ADD COLUMN` si querés conservar datos.
+
 ### Ver logs en Railway
 
 ```bash

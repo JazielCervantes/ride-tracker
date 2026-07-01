@@ -13,9 +13,9 @@ PRICE_TRIPLE = Decimal("25.00")
 
 def _calculate_amounts(trip_type: str) -> tuple[Decimal, Decimal]:
     """Devuelve (amount_per_client, total_amount)."""
-    if trip_type == TripType.individual or trip_type == "individual":
+    if trip_type == TripType.individual:
         return PRICE_INDIVIDUAL, PRICE_INDIVIDUAL
-    if trip_type == TripType.triple or trip_type == "triple":
+    if trip_type == TripType.triple:
         return PRICE_TRIPLE, PRICE_TRIPLE * 3
     return PRICE_PAIR, PRICE_PAIR * 2
 

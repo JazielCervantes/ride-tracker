@@ -1,5 +1,5 @@
 import enum
-from sqlalchemy import Column, Integer, String, Text, Date, DateTime, ForeignKey, Enum, Numeric
+from sqlalchemy import Column, Integer, String, Text, Date, DateTime, ForeignKey, Numeric
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.database import Base
@@ -17,7 +17,9 @@ class Trip(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     date = Column(Date, nullable=False, index=True)
-    trip_type = Column(Enum(TripType), nullable=False)
+    # Guardado como texto (no ENUM nativo): la validación de valores vive en
+    # los schemas Pydantic, y así agregar un tipo nuevo no requiere migrar la BD.
+    trip_type = Column(String(20), nullable=False)
     client1_name = Column(String(100), nullable=False)
     client2_name = Column(String(100), nullable=True)
     client3_name = Column(String(100), nullable=True)

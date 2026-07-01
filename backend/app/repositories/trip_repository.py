@@ -24,15 +24,6 @@ def get_by_week(db: Session, user_id: int, week_start: date) -> list[Trip]:
     )
 
 
-def get_by_date(db: Session, user_id: int, trip_date: date) -> list[Trip]:
-    return (
-        db.query(Trip)
-        .filter(Trip.user_id == user_id, Trip.date == trip_date)
-        .order_by(Trip.created_at.desc())
-        .all()
-    )
-
-
 def get_by_id(db: Session, trip_id: int, user_id: int) -> Optional[Trip]:
     return db.query(Trip).filter(Trip.id == trip_id, Trip.user_id == user_id).first()
 
