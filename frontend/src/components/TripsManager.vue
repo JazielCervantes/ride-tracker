@@ -101,7 +101,7 @@
         <div class="rt-modal-body">
           <p>
             ¿Eliminar el viaje de <strong>{{ deletingTrip.client1_name }}</strong>
-            {{ deletingTrip.client2_name ? `& ${deletingTrip.client2_name}` : '' }}
+            {{ deletingTrip.client2_name ? `& ${deletingTrip.client2_name}` : '' }}{{ deletingTrip.client3_name ? ` & ${deletingTrip.client3_name}` : '' }}
             del {{ formatDate(deletingTrip.date) }}?
           </p>
           <p class="rt-error-msg">Esta acción no se puede deshacer.</p>

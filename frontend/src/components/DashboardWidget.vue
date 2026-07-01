@@ -66,7 +66,7 @@
                 {{ trip.trip_type === 'individual' ? 'Individual' : trip.trip_type === 'triple' ? 'Triple' : 'Par' }}
               </span>
               <span class="rt-trip-clients">
-                {{ trip.client1_name }}{{ trip.client2_name ? ` & ${trip.client2_name}` : '' }}
+                {{ trip.client1_name }}{{ trip.client2_name ? ` & ${trip.client2_name}` : '' }}{{ trip.client3_name ? ` & ${trip.client3_name}` : '' }}
               </span>
             </div>
             <span class="rt-trip-amount">${{ Number(trip.total_amount).toFixed(2) }}</span>
