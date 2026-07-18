@@ -1066,13 +1066,18 @@ button:disabled { opacity: 0.55; cursor: not-allowed; }
 }
 
 /* ---- PASSWORD TOGGLE (login) ---- */
-.rt-password-wrap { position: relative; }
-.rt-password-wrap input { padding-right: 2.9rem; }
+.rt-password-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.rt-password-wrap input {
+  flex: 1;
+  padding-right: 2.9rem;
+}
 .rt-password-toggle {
   position: absolute;
-  top: 50%;
   right: 0.35rem;
-  transform: translateY(-50%);
   display: inline-flex;
   align-items: center;
   justify-content: center;
