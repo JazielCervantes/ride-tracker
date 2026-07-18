@@ -122,13 +122,13 @@ Railway reiniciará el servicio automáticamente al guardar la variable.
 
 ---
 
-## 4. Flujo completo de cookies entre dominios
+## 4. Flujo de autenticación entre dominios
 
 El backend en Railway y el frontend en Vercel están en dominios distintos. La autenticación funciona así:
 
-1. Login → Railway setea cookie `access_token` con `Secure=True, SameSite=none, HttpOnly=True`
-2. Vercel envía todas las requests con `credentials: 'include'` (configurado en `frontend/src/lib/api.js`)
-3. El navegador envía la cookie en cada request al backend
+1. Login → el backend responde el token JWT en el body **y además** setea la cookie `access_token` con `Secure=True, SameSite=none, HttpOnly=True`
+2. El frontend (`frontend/src/lib/api.js`) guarda el token del body en `localStorage` (`rt_token`) y lo envía como header `Authorization: Bearer` en cada request — **este es el mecanismo que se usa realmente** (no se configura `credentials: 'include'`)
+3. La cookie queda como vía alternativa de autenticación que el backend también acepta (`utils/dependencies.py`), pero el frontend no depende de ella
 
 > **Requisito:** El backend **debe** estar en HTTPS (Railway lo provee por defecto). Las cookies `SameSite=none` solo funcionan sobre HTTPS.
 

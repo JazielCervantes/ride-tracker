@@ -1,14 +1,24 @@
 <template>
   <div class="rt-page">
     <div class="rt-page-header">
-      <h2>Historial de semanas</h2>
+      <div>
+        <h2>Historial de semanas</h2>
+        <p class="rt-page-subtitle">Semanas de miércoles a martes · cobro el viernes siguiente</p>
+      </div>
     </div>
 
-    <div v-if="loading" class="rt-loading"><p>Cargando semanas...</p></div>
+    <!-- Skeleton de carga -->
+    <div v-if="loading" class="rt-table-wrapper" aria-busy="true" aria-label="Cargando semanas">
+      <div class="rt-skel-table">
+        <div class="rt-skeleton rt-skel-row rt-skel-row-header"></div>
+        <div v-for="i in 4" :key="i" class="rt-skeleton rt-skel-row"></div>
+      </div>
+    </div>
 
     <div v-else-if="weeks.length === 0" class="rt-empty-state">
+      <span class="rt-empty-icon"><Icon name="calendar" :size="26" /></span>
       <p>No hay semanas registradas aún.</p>
-      <a href="/viajes" class="rt-btn-primary rt-btn-sm">Registrar primer viaje</a>
+      <a href="/viajes" class="rt-btn-primary rt-btn-sm"><Icon name="plus" :size="15" /> Registrar primer viaje</a>
     </div>
 
     <div v-else>
@@ -17,13 +27,13 @@
         <table class="rt-table rt-week-history-table">
           <thead>
             <tr>
-              <th>Semana</th>
-              <th class="text-right rt-col-viajes">Viajes</th>
-              <th class="text-right">Tarifas</th>
-              <th class="text-right">Propinas</th>
-              <th class="text-right">Total</th>
-              <th class="rt-col-cobro">Fecha de cobro</th>
-              <th></th>
+              <th scope="col">Semana</th>
+              <th scope="col" class="text-right rt-col-viajes">Viajes</th>
+              <th scope="col" class="text-right">Tarifas</th>
+              <th scope="col" class="text-right">Propinas</th>
+              <th scope="col" class="text-right">Total</th>
+              <th scope="col" class="rt-col-cobro">Fecha de cobro</th>
+              <th scope="col"><span class="rt-visually-hidden">Detalle</span></th>
             </tr>
           </thead>
           <tbody>
@@ -45,8 +55,8 @@
                 </td>
                 <td class="rt-col-cobro">{{ formatDate(week.payment_date) }}</td>
                 <td class="text-right">
-                  <button class="rt-btn-text" @click="toggleWeek(week.week_start)">
-                    Ver detalle ↓
+                  <button class="rt-btn-text" aria-label="Ver detalle de la semana" @click="toggleWeek(week.week_start)">
+                    <span class="rt-btn-text-label">Ver detalle</span> <Icon name="chevron-down" :size="14" />
                   </button>
                 </td>
               </template>
@@ -64,7 +74,9 @@
                         <span class="rt-income-highlight">${{ Number(weekDetail?.total_income ?? 0).toFixed(2) }} tarifas</span>
                         <span v-if="Number(weekDetail?.total_tips) > 0" class="rt-income-tips-sm">+${{ Number(weekDetail?.total_tips ?? 0).toFixed(2) }} prop.</span>
                         <span v-if="Number(weekDetail?.total_tips) > 0" class="rt-income-grand-total">= ${{ (Number(weekDetail?.total_income ?? 0) + Number(weekDetail?.total_tips ?? 0)).toFixed(2) }} total</span>
-                        <button class="rt-btn-text" @click="expandedWeek = null">Cerrar ↑</button>
+                        <button class="rt-btn-text" aria-label="Cerrar detalle" @click="expandedWeek = null">
+                          <span class="rt-btn-text-label">Cerrar</span> <Icon name="chevron-up" :size="14" />
+                        </button>
                       </div>
                     </div>
 
@@ -77,12 +89,12 @@
                     <table v-else class="rt-table rt-detail-table">
                       <thead>
                         <tr>
-                          <th>Fecha</th>
-                          <th>Tipo</th>
-                          <th>Clientes</th>
-                          <th class="text-right">Tarifa</th>
-                          <th class="text-right">Propina</th>
-                          <th>Notas</th>
+                          <th scope="col">Fecha</th>
+                          <th scope="col">Tipo</th>
+                          <th scope="col">Clientes</th>
+                          <th scope="col" class="text-right">Tarifa</th>
+                          <th scope="col" class="text-right">Propina</th>
+                          <th scope="col">Notas</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -90,12 +102,11 @@
                           <td>{{ formatDate(trip.date) }}</td>
                           <td>
                             <span class="rt-trip-type-badge" :class="trip.trip_type">
-                              {{ trip.trip_type === 'individual' ? '👤 Individual' : trip.trip_type === 'triple' ? '👥👤 Triple' : '👥 Par' }}
+                              <Icon :name="trip.trip_type === 'individual' ? 'user' : 'users'" :size="13" />
+                              {{ tripTypeLabel(trip.trip_type) }}
                             </span>
                           </td>
-                          <td>
-                            {{ trip.client1_name }}{{ trip.client2_name ? ` & ${trip.client2_name}` : '' }}{{ trip.client3_name ? ` & ${trip.client3_name}` : '' }}
-                          </td>
+                          <td>{{ clientNames(trip) }}</td>
                           <td class="text-right rt-amount-cell">${{ Number(trip.total_amount).toFixed(2) }}</td>
                           <td class="text-right rt-amount-cell">
                             {{ Number(trip.tip_amount) > 0 ? '$' + Number(trip.tip_amount).toFixed(2) : '—' }}
@@ -113,7 +124,10 @@
       </div>
     </div>
 
-    <p v-if="error" class="rt-error">{{ error }}</p>
+    <p v-if="error" class="rt-error" role="alert">
+      <Icon name="alert-circle" :size="16" />
+      <span>{{ error }}</span>
+    </p>
   </div>
 </template>
 
@@ -121,6 +135,7 @@
 import { ref, onMounted } from 'vue';
 import { api } from '../lib/api.js';
 import { formatDate, formatWeekRange } from '../lib/dates.js';
+import Icon from './Icon.vue';
 
 const weeks = ref([]);
 const loading = ref(true);
@@ -128,6 +143,14 @@ const error = ref('');
 const expandedWeek = ref(null);
 const weekDetail = ref(null);
 const detailLoading = ref(false);
+
+function tripTypeLabel(type) {
+  return type === 'individual' ? 'Individual' : type === 'triple' ? 'Triple' : 'Par';
+}
+
+function clientNames(trip) {
+  return [trip.client1_name, trip.client2_name, trip.client3_name].filter(Boolean).join(' & ');
+}
 
 async function toggleWeek(weekStart) {
   if (expandedWeek.value === weekStart) {

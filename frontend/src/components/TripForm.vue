@@ -1,34 +1,39 @@
 <template>
   <!-- Overlay -->
   <div class="rt-modal-overlay" @click.self="$emit('close')">
-    <div class="rt-modal" role="dialog" :aria-label="trip ? 'Editar viaje' : 'Nuevo viaje'">
+    <div class="rt-modal" role="dialog" aria-modal="true" :aria-label="trip ? 'Editar viaje' : 'Nuevo viaje'">
       <div class="rt-modal-header">
         <h3>{{ trip ? 'Editar viaje' : 'Nuevo viaje' }}</h3>
-        <button class="rt-modal-close" @click="$emit('close')" aria-label="Cerrar">✕</button>
+        <button class="rt-modal-close" @click="$emit('close')" aria-label="Cerrar">
+          <Icon name="x" :size="16" />
+        </button>
       </div>
 
       <form class="rt-modal-body" @submit.prevent="handleSubmit">
         <!-- Fecha -->
         <div class="rt-field">
           <label for="tf-date">Fecha</label>
-          <input id="tf-date" v-model="form.date" type="date" required :max="todayStr" />
+          <input id="tf-date" ref="dateInput" v-model="form.date" type="date" required :max="todayStr" />
         </div>
 
         <!-- Tipo de viaje -->
         <div class="rt-field">
-          <label>Tipo de viaje</label>
-          <div class="rt-radio-group">
+          <label id="tf-type-label">Tipo de viaje</label>
+          <div class="rt-radio-group" role="radiogroup" aria-labelledby="tf-type-label">
             <label class="rt-radio-option" :class="{ selected: form.trip_type === 'individual' }">
               <input v-model="form.trip_type" type="radio" value="individual" />
-              <span>👤 Individual <small>$30</small></span>
+              <Icon name="user" :size="16" />
+              <span>Individual <small>$30</small></span>
             </label>
             <label class="rt-radio-option" :class="{ selected: form.trip_type === 'pair' }">
               <input v-model="form.trip_type" type="radio" value="pair" />
-              <span>👥 En par <small>$25 c/u</small></span>
+              <Icon name="users" :size="16" />
+              <span>En par <small>$25 c/u</small></span>
             </label>
             <label class="rt-radio-option" :class="{ selected: form.trip_type === 'triple' }">
               <input v-model="form.trip_type" type="radio" value="triple" />
-              <span>👥👤 Triple <small>$25 c/u</small></span>
+              <Icon name="users" :size="16" />
+              <span>Triple <small>$25 c/u</small></span>
             </label>
           </div>
         </div>
@@ -43,6 +48,7 @@
             v-model="form.client1_name"
             type="text"
             placeholder="Nombre del cliente"
+            maxlength="100"
             required
           />
         </div>
@@ -55,6 +61,7 @@
             v-model="form.client2_name"
             type="text"
             placeholder="Nombre del segundo cliente"
+            maxlength="100"
             required
           />
         </div>
@@ -67,6 +74,7 @@
             v-model="form.client3_name"
             type="text"
             placeholder="Nombre del tercer cliente"
+            maxlength="100"
             required
           />
         </div>
@@ -74,7 +82,7 @@
         <!-- Notas -->
         <div class="rt-field">
           <label for="tf-notes">Notas <small>(opcional)</small></label>
-          <textarea id="tf-notes" v-model="form.notes" rows="2" placeholder="Observaciones..."></textarea>
+          <textarea id="tf-notes" v-model="form.notes" rows="2" maxlength="1000" placeholder="Observaciones..."></textarea>
         </div>
 
         <!-- Propina -->
@@ -99,7 +107,10 @@
           </span>
         </div>
 
-        <p v-if="error" class="rt-error">{{ error }}</p>
+        <p v-if="error" class="rt-error" role="alert">
+          <Icon name="alert-circle" :size="16" />
+          <span>{{ error }}</span>
+        </p>
 
         <div class="rt-modal-footer">
           <button type="button" class="rt-btn-secondary" @click="$emit('close')" :disabled="loading">
@@ -115,9 +126,10 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { api } from '../lib/api.js';
 import { today } from '../lib/dates.js';
+import Icon from './Icon.vue';
 
 const props = defineProps({
   trip: { type: Object, default: null },
@@ -139,6 +151,23 @@ const form = ref({
 
 const loading = ref(false);
 const error = ref('');
+const dateInput = ref(null);
+
+// UX de modal: Escape cierra, el fondo no scrollea, foco al primer campo
+function onEscKey(e) {
+  if (e.key === 'Escape' && !loading.value) emit('close');
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', onEscKey);
+  document.body.style.overflow = 'hidden';
+  dateInput.value?.focus();
+});
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', onEscKey);
+  document.body.style.overflow = '';
+});
 
 // Limpiar nombres de clientes extra al cambiar tipo
 watch(() => form.value.trip_type, (newType) => {

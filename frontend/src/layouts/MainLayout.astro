@@ -1,5 +1,13 @@
 ---
+// Fuentes e Inter self-hosteados (sin CDNs de terceros en runtime)
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/600.css';
+import '@fontsource/inter/700.css';
+import '@fontsource/inter/800.css';
+import '@picocss/pico/css/pico.classless.css';
 import '../styles/global.css';
+import Icon from '../components/Icon.astro';
 const { title = 'Ride Tracker', currentPage = '' } = Astro.props;
 ---
 <!doctype html>
@@ -7,47 +15,64 @@ const { title = 'Ride Tracker', currentPage = '' } = Astro.props;
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Registro personal de viajes de remis con seguimiento financiero semanal." />
+  <meta name="theme-color" content="#2563eb" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <title>{title} — Ride Tracker</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css" />
 </head>
 <body>
 
   <header class="rt-header">
-    <nav class="rt-nav container-fluid">
+    <nav class="rt-nav" aria-label="Navegación principal">
       <a href="/" class="rt-brand">
-        <span class="rt-brand-icon">🚗</span>
+        <span class="rt-brand-icon"><Icon name="car" size={18} /></span>
         <span class="rt-brand-name">Ride Tracker</span>
       </a>
 
       <ul class="rt-nav-links">
         <li>
-          <a href="/" class:list={["rt-nav-link", { active: currentPage === 'dashboard' }]}>
-            Dashboard
+          <a
+            href="/"
+            class:list={["rt-nav-link", { active: currentPage === 'dashboard' }]}
+            aria-current={currentPage === 'dashboard' ? 'page' : undefined}
+          >
+            <Icon name="dashboard" size={16} />
+            <span>Dashboard</span>
           </a>
         </li>
         <li>
-          <a href="/viajes" class:list={["rt-nav-link", { active: currentPage === 'viajes' }]}>
-            Viajes
+          <a
+            href="/viajes"
+            class:list={["rt-nav-link", { active: currentPage === 'viajes' }]}
+            aria-current={currentPage === 'viajes' ? 'page' : undefined}
+          >
+            <Icon name="route" size={16} />
+            <span>Viajes</span>
           </a>
         </li>
         <li>
-          <a href="/semanas" class:list={["rt-nav-link", { active: currentPage === 'semanas' }]}>
-            Semanas
+          <a
+            href="/semanas"
+            class:list={["rt-nav-link", { active: currentPage === 'semanas' }]}
+            aria-current={currentPage === 'semanas' ? 'page' : undefined}
+          >
+            <Icon name="calendar" size={16} />
+            <span>Semanas</span>
           </a>
         </li>
       </ul>
 
       <div class="rt-nav-user">
         <span id="nav-username" class="rt-username"></span>
-        <button id="logout-btn" class="rt-btn-logout outline">Salir</button>
+        <button id="logout-btn" class="rt-btn-logout">
+          <Icon name="logout" size={15} />
+          <span>Salir</span>
+        </button>
       </div>
     </nav>
   </header>
 
-  <main class="rt-main container">
+  <main class="rt-main">
     <slot />
   </main>
 

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, field_validator, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 from typing import Optional
 from datetime import date, datetime
 from decimal import Decimal
@@ -6,16 +6,22 @@ from decimal import Decimal
 # Alias to avoid Pydantic v2 annotation shadowing when field name == type name
 _Date = date
 
+# Límites alineados con las columnas de la BD (String(100) / Numeric(10,2)):
+# validar acá devuelve un 422 claro en lugar de un error del motor MySQL.
+_NAME_MAX = 100
+_NOTES_MAX = 1000
+_TIP_MAX = Decimal("99999.99")
+
 
 class TripCreate(BaseModel):
     date: date
     trip_type: str
-    client1_name: str
-    client2_name: Optional[str] = None
-    notes: Optional[str] = None
+    client1_name: str = Field(min_length=1, max_length=_NAME_MAX)
+    client2_name: Optional[str] = Field(None, max_length=_NAME_MAX)
+    notes: Optional[str] = Field(None, max_length=_NOTES_MAX)
 
-    client3_name: Optional[str] = None
-    tip_amount: Optional[Decimal] = Decimal("0.00")
+    client3_name: Optional[str] = Field(None, max_length=_NAME_MAX)
+    tip_amount: Optional[Decimal] = Field(Decimal("0.00"), ge=0, le=_TIP_MAX)
 
     @field_validator("trip_type")
     @classmethod
@@ -36,12 +42,12 @@ class TripCreate(BaseModel):
 class TripUpdate(BaseModel):
     date: Optional[_Date] = None
     trip_type: Optional[str] = None
-    client1_name: Optional[str] = None
-    client2_name: Optional[str] = None
-    notes: Optional[str] = None
+    client1_name: Optional[str] = Field(None, min_length=1, max_length=_NAME_MAX)
+    client2_name: Optional[str] = Field(None, max_length=_NAME_MAX)
+    notes: Optional[str] = Field(None, max_length=_NOTES_MAX)
 
-    client3_name: Optional[str] = None
-    tip_amount: Optional[Decimal] = None
+    client3_name: Optional[str] = Field(None, max_length=_NAME_MAX)
+    tip_amount: Optional[Decimal] = Field(None, ge=0, le=_TIP_MAX)
 
     @field_validator("trip_type")
     @classmethod

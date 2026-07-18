@@ -1,27 +1,34 @@
 ---
-import LoginForm from '../components/LoginForm.vue';
+// Fuentes e Inter self-hosteados (sin CDNs de terceros en runtime)
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/600.css';
+import '@fontsource/inter/700.css';
+import '@fontsource/inter/800.css';
+import '@picocss/pico/css/pico.classless.css';
 import '../styles/global.css';
+import Icon from '../components/Icon.astro';
+import LoginForm from '../components/LoginForm.vue';
 ---
 <!doctype html>
 <html lang="es" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Registro personal de viajes de remis con seguimiento financiero semanal." />
+  <meta name="theme-color" content="#2563eb" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <title>Iniciar sesión — Ride Tracker</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css" />
 </head>
 <body class="rt-login-page">
-  <div class="rt-login-container">
+  <main class="rt-login-container">
     <div class="rt-login-header">
-      <div class="rt-login-icon">🚗</div>
+      <div class="rt-login-icon"><Icon name="car" size={28} /></div>
       <h1 class="rt-login-title">Ride Tracker</h1>
       <p class="rt-login-subtitle">Registro de viajes</p>
     </div>
     <LoginForm client:load />
-  </div>
+  </main>
 
   <script>
     // Redirigir si ya está logueado

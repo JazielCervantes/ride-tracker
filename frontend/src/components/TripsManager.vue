@@ -8,11 +8,14 @@
         </p>
         <p v-else class="rt-page-subtitle">Todos los viajes</p>
       </div>
-      <button class="rt-btn-primary" @click="openCreate">+ Nuevo viaje</button>
+      <button class="rt-btn-primary" @click="openCreate">
+        <Icon name="plus" :size="16" /> Nuevo viaje
+      </button>
     </div>
 
     <!-- Filtro de semana -->
     <div class="rt-filter-bar">
+      <Icon name="filter" :size="15" class="rt-filter-icon" />
       <label for="week-select">Filtrar semana:</label>
       <select id="week-select" v-model="selectedWeek" @change="loadTrips">
         <option value="">Todos</option>
@@ -22,13 +25,21 @@
       </select>
     </div>
 
-    <!-- Carga -->
-    <div v-if="loading" class="rt-loading"><p>Cargando viajes...</p></div>
+    <!-- Skeleton de carga -->
+    <div v-if="loading" class="rt-table-wrapper" aria-busy="true" aria-label="Cargando viajes">
+      <div class="rt-skel-table">
+        <div class="rt-skeleton rt-skel-row rt-skel-row-header"></div>
+        <div v-for="i in 4" :key="i" class="rt-skeleton rt-skel-row"></div>
+      </div>
+    </div>
 
     <!-- Tabla vacía -->
     <div v-else-if="trips.length === 0" class="rt-empty-state">
+      <span class="rt-empty-icon"><Icon name="car" :size="26" /></span>
       <p>No hay viajes registrados{{ selectedWeek ? ' en esta semana' : '' }}.</p>
-      <button class="rt-btn-primary rt-btn-sm" @click="openCreate">+ Registrar primer viaje</button>
+      <button class="rt-btn-primary rt-btn-sm" @click="openCreate">
+        <Icon name="plus" :size="15" /> Registrar primer viaje
+      </button>
     </div>
 
     <!-- Tabla de viajes -->
@@ -45,12 +56,12 @@
       <table class="rt-table rt-trips-table">
         <thead>
           <tr>
-            <th>Fecha</th>
-            <th>Tipo</th>
-            <th>Clientes</th>
-            <th class="text-right">Monto</th>
-            <th>Notas</th>
-            <th class="text-right">Acciones</th>
+            <th scope="col">Fecha</th>
+            <th scope="col">Tipo</th>
+            <th scope="col">Clientes</th>
+            <th scope="col" class="text-right">Monto</th>
+            <th scope="col">Notas</th>
+            <th scope="col" class="text-right">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -58,7 +69,8 @@
             <td>{{ formatDate(trip.date) }}</td>
             <td>
               <span class="rt-trip-type-badge" :class="trip.trip_type">
-                {{ trip.trip_type === 'individual' ? '👤 Individual' : trip.trip_type === 'triple' ? '👥👤 Triple' : '👥 Par' }}
+                <Icon :name="trip.trip_type === 'individual' ? 'user' : 'users'" :size="13" />
+                {{ tripTypeLabel(trip.trip_type) }}
               </span>
             </td>
             <td class="rt-clients-cell">
@@ -73,8 +85,12 @@
             <td class="rt-notes-cell">{{ trip.notes || '—' }}</td>
             <td class="text-right">
               <div class="rt-actions">
-                <button class="rt-btn-icon" title="Editar" @click="openEdit(trip)">✏️</button>
-                <button class="rt-btn-icon rt-btn-danger" title="Eliminar" @click="confirmDelete(trip)">🗑️</button>
+                <button class="rt-btn-icon" title="Editar" aria-label="Editar viaje" @click="openEdit(trip)">
+                  <Icon name="pencil" :size="16" />
+                </button>
+                <button class="rt-btn-icon rt-btn-icon-danger" title="Eliminar" aria-label="Eliminar viaje" @click="confirmDelete(trip)">
+                  <Icon name="trash" :size="16" />
+                </button>
               </div>
             </td>
           </tr>
@@ -82,7 +98,10 @@
       </table>
     </div>
 
-    <p v-if="actionError" class="rt-error">{{ actionError }}</p>
+    <p v-if="actionError" class="rt-error" role="alert">
+      <Icon name="alert-circle" :size="16" />
+      <span>{{ actionError }}</span>
+    </p>
 
     <!-- Modal TripForm -->
     <TripForm
@@ -94,19 +113,21 @@
 
     <!-- Confirmación de borrado -->
     <div v-if="deletingTrip" class="rt-modal-overlay" @click.self="deletingTrip = null">
-      <div class="rt-modal rt-modal-sm">
+      <div class="rt-modal rt-modal-sm" role="dialog" aria-modal="true" aria-label="Eliminar viaje">
         <div class="rt-modal-header">
           <h3>Eliminar viaje</h3>
+          <button class="rt-modal-close" @click="deletingTrip = null" aria-label="Cerrar">
+            <Icon name="x" :size="16" />
+          </button>
         </div>
         <div class="rt-modal-body">
           <p>
-            ¿Eliminar el viaje de <strong>{{ deletingTrip.client1_name }}</strong>
-            {{ deletingTrip.client2_name ? `& ${deletingTrip.client2_name}` : '' }}{{ deletingTrip.client3_name ? ` & ${deletingTrip.client3_name}` : '' }}
+            ¿Eliminar el viaje de <strong>{{ clientNames(deletingTrip) }}</strong>
             del {{ formatDate(deletingTrip.date) }}?
           </p>
           <p class="rt-error-msg">Esta acción no se puede deshacer.</p>
         </div>
-        <div class="rt-modal-footer">
+        <div class="rt-modal-footer rt-modal-footer-pad">
           <button class="rt-btn-secondary" @click="deletingTrip = null" :disabled="deleting">Cancelar</button>
           <button class="rt-btn-danger" @click="doDelete" :disabled="deleting">
             {{ deleting ? 'Eliminando...' : 'Eliminar' }}
@@ -114,14 +135,23 @@
         </div>
       </div>
     </div>
+
+    <!-- Toast de confirmación -->
+    <transition name="rt-toast">
+      <div v-if="toast" class="rt-toast" role="status" aria-live="polite">
+        <Icon name="check-circle" :size="17" />
+        <span>{{ toast }}</span>
+      </div>
+    </transition>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { api } from '../lib/api.js';
-import { formatDate, formatWeekRange, getWeekEnd, getPaymentDate, today } from '../lib/dates.js';
+import { formatDate, formatWeekRange, getWeekEnd, getPaymentDate } from '../lib/dates.js';
 import TripForm from './TripForm.vue';
+import Icon from './Icon.vue';
 
 const trips = ref([]);
 const availableWeeks = ref([]);
@@ -132,8 +162,40 @@ const showForm = ref(false);
 const editingTrip = ref(null);
 const deletingTrip = ref(null);
 const deleting = ref(false);
+const toast = ref('');
+let toastTimer = null;
 
 function weekEndFor(ws) { return getWeekEnd(ws); }
+
+function tripTypeLabel(type) {
+  return type === 'individual' ? 'Individual' : type === 'triple' ? 'Triple' : 'Par';
+}
+
+function clientNames(trip) {
+  return [trip.client1_name, trip.client2_name, trip.client3_name].filter(Boolean).join(' & ');
+}
+
+function showToast(message) {
+  toast.value = message;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { toast.value = ''; }, 2600);
+}
+
+// Escape cierra el modal de confirmación de borrado
+function onEscKey(e) {
+  if (e.key === 'Escape' && deletingTrip.value && !deleting.value) {
+    deletingTrip.value = null;
+  }
+}
+watch(deletingTrip, (open) => {
+  if (open) window.addEventListener('keydown', onEscKey);
+  else window.removeEventListener('keydown', onEscKey);
+});
+
+onUnmounted(() => {
+  clearTimeout(toastTimer);
+  window.removeEventListener('keydown', onEscKey);
+});
 
 const weekTotal = computed(() =>
   trips.value.reduce((sum, t) => sum + Number(t.total_amount), 0)
@@ -191,6 +253,7 @@ function closeForm() {
 }
 
 function onTripSaved() {
+  showToast(editingTrip.value ? 'Viaje actualizado' : 'Viaje registrado');
   loadTrips();
   loadWeeks();
 }
@@ -204,6 +267,7 @@ async function doDelete() {
   try {
     await api.trips.delete(deletingTrip.value.id);
     deletingTrip.value = null;
+    showToast('Viaje eliminado');
     loadTrips();
     loadWeeks();
   } catch (e) {
